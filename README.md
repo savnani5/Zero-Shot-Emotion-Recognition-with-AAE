@@ -17,7 +17,7 @@ Instructions of use:
 Instructions to run ZSL:
 
 1. Navigate to the folder titled 'feature_data' and store the 'output.h5' that was generated from the STEP output there. 
-2. Install gensim module using ```pip3 install gensim``` and download the 'Google_Trained_Weights' for word2vec and store it in 'feature_data' itself.
+2. Install transformers module using ```pip3 install transformers``` and download the 'bert-base-uncased' for BERT pretrained model and 'NRC-VAD-Lexicon.txt' for VAD and store it in 'feature_data' itself.
 3. Run ```python3 check.py``` to generate the mat files 'featuresT.mat' and 'labelsT.mat'.
 4. Copy these two mat files and navigate to the folder 'Generalized_Zero_Shot/data' and paste them there.
 5. Navigate to 'Generalized_Zero_Shot' and run ```python3 linear_classifier.py``` to begin training.
