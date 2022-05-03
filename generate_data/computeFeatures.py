@@ -517,6 +517,7 @@ def computeFeature26(frames, timestep):
 	array = np.asarray(array)
 	return np.mean(array)
 
+# Affective features
 def computeFeatures(frames, timestep):
 	features = []
 	# Volume

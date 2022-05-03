@@ -25,7 +25,7 @@ class encoder_cada(nn.Module):
 	features: x
 	attributes: att
 	"""
-	def __init__(self, input_dim=2048, atts_dim=312, z=64 ):
+	def __init__(self, input_dim=2048, atts_dim=312, z=64):
 		super(encoder_cada, self).__init__()
 		self.encoder_x = nn.Sequential(nn.Linear(input_dim, 1560), nn.ReLU())
 		self.mu_x = nn.Linear(1560, z)

@@ -204,6 +204,7 @@ class Bvh:
         return index_offset
 
     def frame_pose(self, frame):
+        # Extract position and rotation of every joint
         p = np.empty((len(self.joints), 3))
         r = np.empty((len(self.joints), 3))
         frame_pose = self.keyframes[frame]
@@ -216,6 +217,7 @@ class Bvh:
         return p, r
 
     def all_frame_poses(self):
+        # Poses for all frames
         p = np.empty((self.frames, len(self.joints), 3))
         r = np.empty((self.frames, len(self.joints), 3))
 
@@ -270,7 +272,7 @@ def getFiles(filename):
     return images
 
 def getFeatureMatrix(frames):
-    
+    # Reducing the n joint space to 10 joints
     feature = np.zeros((frames.shape[0],10,frames.shape[2]))
 
     feature[:,0,:] = frames[:,0,:]
@@ -290,7 +292,6 @@ def getFeatureMatrix(frames):
 
 if __name__ == '__main__':
 
-    #############################################################
     filename = '../data/bvh/*.bvh'
     fname = getFiles(filename)
     f = fname[0]

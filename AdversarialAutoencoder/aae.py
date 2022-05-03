@@ -23,7 +23,7 @@ import argparse
 import math
 from gensim.models import KeyedVectors
 
-from dataset import data_loader, classifier_data_loader
+from dataset import dataloader, classifier_dataloader
 # from model import Q_net, P_net, D_net_cat, D_net_gauss, sample_categorical, report_loss,\
                                         # create_latent, get_categorical, classification_accuracy
 import argparse
@@ -33,7 +33,7 @@ parser.add_argument('--dataset', type=str, default='EBMDB',
                     help='Name of the dataset')
 parser.add_argument('--batch_size', type=int, default=6,
                     help='The batch size')
-parser.add_argument('--epochs', type=int, default=1000,
+parser.add_argument('--epochs', type=int, default=100,
                     help='Number of epochs')
 parser.add_argument('--latent_size', type=int, default=16,
                     help='size of the latent vector')
@@ -44,7 +44,7 @@ parser.add_argument('--model_path', type=str, default='../models/gzsl',
 parser.add_argument('--device', type=str, default='cpu',
                     help='cuda or cpu')
 parser.add_argument('--pretrained', default=False, action='store_true', help='Load pretrained weights')
-parser.add_argument('--word_vec_loc', default='./GoogleNews-vectors-negative300.bin', action='store_true', help='Load pretrained weights')
+parser.add_argument('--word_vec_loc', default='../feature_data/GoogleNews-vectors-negative300.bin', action='store_true', help='Load pretrained weights')
 args = parser.parse_args()
 cuda = torch.cuda.is_available()
 os.makedirs(args.model_path, exist_ok=True)
@@ -244,12 +244,12 @@ def load_data(args):
 
     # LOAD DATA #############################
     scalar = MinMaxScaler()
-    train_val_set = data_loader(transform=scalar, root=args.dataset_path,
+    train_val_set = dataloader(transform=scalar, root=args.dataset_path,
                                          split='train_val', device=device)
   
-    test_set_unseen = data_loader(transform=scalar, root=args.dataset_path, split='test_unseen',
+    test_set_unseen = dataloader(transform=scalar, root=args.dataset_path, split='test_unseen',
                                            device=device)
-    test_set_seen = data_loader(transform=scalar, root=args.dataset_path, split='test_seen',
+    test_set_seen = dataloader(transform=scalar, root=args.dataset_path, split='test_seen',
                                          device=device)
     train_loader = data.DataLoader(train_val_set, batch_size=args.batch_size, shuffle=True)
     test_set_seen = data.DataLoader(test_set_seen, batch_size=2, shuffle=True)
@@ -435,13 +435,13 @@ def generate_model(train_labeled_loader, train_unlabeled_loader, valid_loader):
     start = time.time()
     for epoch in range(args.epochs):
         D_loss_gauss, G_loss, recon_loss = train(P, Q, D_cat,
-                                                                     D_gauss, P_decoder,
-                                                                     Q_encoder, Q_semi_supervised,
-                                                                     Q_generator,
-                                                                     D_cat_solver, D_gauss_solver,
-                                                                     train_labeled_loader,
-                                                                     None)
-                                                                     # train_unlabeled_loader)
+                                                            D_gauss, P_decoder,
+                                                            Q_encoder, Q_semi_supervised,
+                                                            Q_generator,
+                                                            D_cat_solver, D_gauss_solver,
+                                                            train_labeled_loader,
+                                                            None)
+                                                            # train_unlabeled_loader)
         if epoch % 10 == 0:
             train_acc = classification_accuracy(Q, train_labeled_loader)
             val_acc = classification_accuracy(Q, train_unlabeled_loader)
@@ -462,18 +462,3 @@ if __name__ == '__main__':
               'att_unseen': 720}
     Q, P = generate_model(train_labeled_loader, train_unlabeled_loader, valid_loader)
     # getFeatures(params,valid_loader,train_val_set)
-
-# if __name__ == '__main__':
-#     model = gzsl_aae(args)
-#     if not args.pretrained:
-#         epochs = 2000
-#         for epoch in range(1, epochs + 1):
-#             print('epoch:', epoch)
-#             model.train(epoch)
-#     # CLASSIFIER
-#     params = {'img_seen': 720,
-#               'img_unseen': 0,
-#               'att_seen': 0,
-#               'att_unseen': 720}
-#     num_epochs = 40
-#     s, u, h = model.train_classifier(num_epochs)

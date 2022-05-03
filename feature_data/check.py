@@ -3,6 +3,9 @@ import deepdish as dd
 import matplotlib.pyplot as plt
 from gensim.models import KeyedVectors
 from scipy.io import savemat
+from transformers import BertTokenizer, BertModel
+
+
 
 dat = dd.io.load('featuresABHI.h5')
 lab = dd.io.load('labelsABHI.h5')
@@ -22,21 +25,53 @@ lis6= []
 for j,num6 in enumerate(lis):
 	if num6==6:
 		lis6.append(j)
+		
 list_unseen = lis3+lis6
 unseen = list_unseen
 list_unseen = np.asarray(list_unseen).reshape((len(list_unseen),1))
 list_unseen = list_unseen + 1
 print(list_unseen.shape,"Unseen")
 ##############################
-model = KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+
 emotions = ['joy','relief','pride','shame','anger','surprise','amusement','sadness','fear','neutral','disgust']
+
+# Using BERT instead of word2vec
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertModel.from_pretrained("bert-base-uncased")
+
+# Using VAD instead of word2vec 
+wordmodel = {}
+with open('NRC-VAD-Lexicon.txt') as f:
+    for line in f:
+        t = line.split('\t')
+        wordmodel[t[0]] = [float(t[1]), float(t[2]), float(t[3][0:5])]
+
+# combining both
 attrib = []
-for em in emotions:
-	vector = model[em]
-	attrib.append(vector)
+for emotion in emotions:
+	encoded_input = tokenizer(emotion, return_tensors='pt')
+	output = model(**encoded_input)
+	embedding = output[1][0].detach().tolist()
+	vad = wordmodel[emotion]
+	embedding.extend(vad)
+	attrib.append(embedding)
+
 attrib = np.asarray(attrib)
 attrib = attrib.T
 print(attrib.shape,"Att")
+
+
+# model = KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+# emotions = ['joy','relief','pride','shame','anger','surprise','amusement','sadness','fear','neutral','disgust']
+# attrib = []
+# for em in emotions:
+# 	vector = model[em]
+# 	attrib.append(vector)
+# 	# print(em, " " ,vector)
+# attrib = np.asarray(attrib)
+# attrib = attrib.T
+# print(attrib.shape,"Att")
+
 ##############################
 list_seen= []
 for k,nums in enumerate(lis[350:650]):
